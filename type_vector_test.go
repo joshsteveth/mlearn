@@ -90,20 +90,20 @@ func TestAddVector(t *testing.T) {
 	fmt.Printf("Result of result vector should be all 5\n%s\n", v)
 }
 
-func TestDotVector(t *testing.T) {
+func TestDotProduct(t *testing.T) {
 	input := []float64{1, 2, 3}
 	v := NewVector(input)
 
 	input2 := []float64{1, 2, 3, 4}
 	v2 := NewVector(input2)
 
-	_, err := v.DotVector(v2)
+	_, err := v.DotProduct(v2)
 	assert.Error(t, err)
 
 	input3 := []float64{4, 3, 2}
 	v3 := NewVector(input3)
 
-	result, err := v.DotVector(v3)
+	result, err := v.DotProduct(v3)
 	assert.NoError(t, err)
 	assert.Equal(t, float64(16), result)
 }

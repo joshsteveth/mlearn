@@ -286,3 +286,34 @@ func (m *Matrix) GetAllColumnVectors() []*Vector {
 
 	return result
 }
+
+//Matrix multiplication
+//the order between m and m2 matters
+//number of m's col and m2's row must agree
+func (m *Matrix) multiply(m2 *Matrix) *Matrix {
+	//create new matrix with row = m's row and column = m2's column
+	res := NewZeroMatrix(m.GetRowNumber(), m2.GetColumnNumber())
+
+	//get all row vectors from m and column vectors from m2
+	rowVec := m.GetAllRowVectors()
+	colVec := m2.GetAllColumnVectors()
+
+	for i := 1; i <= len(rowVec); i++ {
+		for j := 1; j <= len(colVec); j++ {
+			//create dot product between row and col vectors
+			dp := rowVec[i-1].dotProduct(colVec[j-1])
+			res.setSingleValue(i, j, dp)
+		}
+	}
+
+	return res
+}
+
+func (m *Matrix) Multiply(m2 *Matrix) (*Matrix, error) {
+	//validate first
+	if m.GetColumnNumber() != m2.GetRowNumber() {
+		return nil, fmt.Errorf("First column and second row dimenstions don't agree")
+	}
+
+	return m.multiply(m2), nil
+}

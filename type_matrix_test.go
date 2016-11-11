@@ -176,3 +176,37 @@ func TestGetColumnVectors(t *testing.T) {
 	allColumns := m.GetAllColumnVectors()
 	assert.Equal(t, 3, len(allColumns))
 }
+
+func TestMulyiplyMatrixes(t *testing.T) {
+	input := [][]float64{
+		[]float64{3, 4, 5},
+		[]float64{1, 7, 2},
+	}
+
+	m, _ := NewMatrix(input)
+
+	input2 := [][]float64{
+		[]float64{3, 4, 5},
+		[]float64{1, 7, 2},
+	}
+
+	m2, _ := NewMatrix(input2)
+
+	_, err := m.Multiply(m2)
+	assert.Error(t, err)
+
+	input3 := [][]float64{
+		[]float64{3, 4, 5},
+		[]float64{1, 7, 2},
+		[]float64{0, 3, 1},
+	}
+
+	m3, _ := NewMatrix(input3)
+
+	res, err := m.Multiply(m3)
+	assert.NoError(t, err)
+	rowVec := res.getRowVector(2)
+	assert.Equal(t, float64(59), rowVec.getSingleValue(2))
+
+	fmt.Printf("2nd row vector of multiplication result should be [10, 59, 21]\n%s\n\n", rowVec)
+}
