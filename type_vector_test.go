@@ -30,8 +30,6 @@ func TestSetAndGetSingleValueToVector(t *testing.T) {
 	res, err := v.GetSingleValue(3)
 	assert.NoError(t, err)
 	assert.Equal(t, float64(10), res)
-
-	fmt.Println(v)
 }
 
 func TestSetValue(t *testing.T) {
@@ -68,4 +66,26 @@ func TestMultiplyVariableVector(t *testing.T) {
 	assert.Equal(t, float64(3), v.getSingleValue(1))
 	assert.Equal(t, float64(6), v.getSingleValue(2))
 	assert.Equal(t, float64(9), v.getSingleValue(3))
+}
+
+func TestAddVector(t *testing.T) {
+	input := []float64{1, 2, 3}
+	v := NewVector(input)
+
+	input2 := []float64{1, 2, 3, 4}
+	v2 := NewVector(input2)
+
+	err := v.AddVector(v2)
+	assert.Error(t, err)
+
+	input3 := []float64{4, 3, 2}
+	v3 := NewVector(input3)
+
+	err = v.AddVector(v3)
+	assert.NoError(t, err)
+	for i := 1; i <= v.GetLength(); i++ {
+		assert.Equal(t, float64(5), v.getSingleValue(i))
+	}
+
+	fmt.Printf("Result of result vector should be all 5\n%s\n", v)
 }

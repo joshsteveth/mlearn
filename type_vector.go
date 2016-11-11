@@ -95,3 +95,20 @@ func (v *Vector) MultiplyVariable(x float64) {
 		v.setSingleValue(i, v.getSingleValue(i)*x)
 	}
 }
+
+//add a vector to a vector
+//as validation both dimensions must agree
+func (v *Vector) addVector(v2 *Vector) {
+	for i := 1; i <= v.GetLength(); i++ {
+		v.setSingleValue(i, v.getSingleValue(i)+v2.getSingleValue(i))
+	}
+}
+
+func (v *Vector) AddVector(v2 *Vector) error {
+	if v.GetLength() != v2.GetLength() {
+		return fmt.Errorf("Dimensions of both vectors don't agree")
+	}
+
+	v.addVector(v2)
+	return nil
+}
