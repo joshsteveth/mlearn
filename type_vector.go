@@ -112,3 +112,22 @@ func (v *Vector) AddVector(v2 *Vector) error {
 	v.addVector(v2)
 	return nil
 }
+
+//multiplication between vectors v and v2
+//e.g. res := v[1]*v2[1] + v[2]*v2[2] + ... + v[n]*v2[n]
+func (v *Vector) dotVector(v2 *Vector) float64 {
+	var result float64
+	for i := 1; i <= v.GetLength(); i++ {
+		result += v.getSingleValue(i) * v2.getSingleValue(i)
+	}
+	return result
+}
+
+func (v *Vector) DotVector(v2 *Vector) (float64, error) {
+	//return if length of both vector does not agree
+	if v.GetLength() != v2.GetLength() {
+		return 0, fmt.Errorf("Dimensions of both vectors don't agree")
+	}
+
+	return v.dotVector(v2), nil
+}
