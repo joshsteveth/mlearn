@@ -8,7 +8,7 @@ import (
 )
 
 func TestNewZeroMatrix(t *testing.T) {
-	m := NewZeroMatrix(5, 3)
+	m := NewZeroMatrix(3, 5)
 	err := m.validate()
 	assert.NoError(t, err)
 	assert.Equal(t, 5, m.GetColumnNumber())
@@ -45,7 +45,7 @@ func TestSetValueMatrix(t *testing.T) {
 	m, err := NewMatrix(validInput)
 	assert.NoError(t, err)
 
-	val, err := m.GetSingleValue(3, 2)
+	val, err := m.GetSingleValue(2, 3)
 	assert.NoError(t, err)
 	assert.Equal(t, float64(4), val)
 }
@@ -64,7 +64,7 @@ func TestTransposeMatrix(t *testing.T) {
 	assert.Equal(t, 2, tr.GetColumnNumber())
 	assert.Equal(t, 3, tr.GetRowNumber())
 
-	val, err := tr.GetSingleValue(2, 3)
+	val, err := tr.GetSingleValue(3, 2)
 	assert.NoError(t, err)
 	assert.Equal(t, float64(2), val)
 
@@ -128,9 +128,9 @@ func TestAddMatrix(t *testing.T) {
 
 	for i := 1; i <= 3; i++ {
 		for j := 1; j <= 2; j++ {
-			assert.Equal(t, float64(5), m.getSingleValue(i, j))
+			assert.Equal(t, float64(5), m.getSingleValue(j, i))
 		}
 	}
 
-	fmt.Printf("Added Matrix: (Should be 3x2 with values = 5)\n%s\n", m)
+	fmt.Printf("Added Matrix: (Should be 2x3 with values = 5)\n%s\n", m)
 }

@@ -14,7 +14,7 @@ type (
 )
 
 //create a new zero matrix with zeros
-func NewZeroMatrix(numCol, numRow int) *Matrix {
+func NewZeroMatrix(numRow, numCol int) *Matrix {
 	m := map[int]*Vector{}
 
 	//loop from 1 ... numCol to create the key
@@ -113,11 +113,11 @@ func (m *Matrix) validate() error {
 
 //get a single value of a Matrix
 //for example to get the 1st column and the 5th row: GetSingleValue(1,5)
-func (m *Matrix) getSingleValue(col, row int) float64 {
+func (m *Matrix) getSingleValue(row, col int) float64 {
 	return m.val[row].getSingleValue(col)
 }
 
-func (m *Matrix) GetSingleValue(col, row int) (float64, error) {
+func (m *Matrix) GetSingleValue(row, col int) (float64, error) {
 	//proof the existence of the column first
 	if _, ok := m.val[row]; !ok {
 		return 0, fmt.Errorf("Row %d does not exist", row)
@@ -131,23 +131,23 @@ func (m *Matrix) GetSingleValue(col, row int) (float64, error) {
 	//get the value from the vector
 	//return error if failed
 
-	return m.getSingleValue(col, row), nil
+	return m.getSingleValue(row, col), nil
 }
 
 //set a single value to a Matrix
 //for example to set value 3 to the 1st column and 5th row: SetSingleValue(1,5, 3)
-func (m *Matrix) setSingleValue(col, row int, newVal float64) {
+func (m *Matrix) setSingleValue(row, col int, newVal float64) {
 	m.val[row].setSingleValue(col, newVal)
 }
 
-func (m *Matrix) SetSingleValue(col, row int, newVal float64) error {
+func (m *Matrix) SetSingleValue(row, col int, newVal float64) error {
 	//first get the value for the column and row
 	//if error then return error
-	if _, err := m.GetSingleValue(col, row); err != nil {
+	if _, err := m.GetSingleValue(row, col); err != nil {
 		return err
 	}
 
-	m.setSingleValue(col, row, newVal)
+	m.setSingleValue(row, col, newVal)
 
 	return nil
 }
@@ -172,12 +172,13 @@ func (m *Matrix) transpose() *Matrix {
 	//create new matrix
 	//switch length of column and row
 	newCol, newRow := m.GetRowNumber(), m.GetColumnNumber()
-	t := NewZeroMatrix(newCol, newRow)
+	t := NewZeroMatrix(newRow, newCol)
 
 	for i := 1; i <= newRow; i++ {
 		for j := 1; j <= newCol; j++ {
 			//also switch the index from original matrix's value
-			t.setSingleValue(j, i, m.getSingleValue(i, j))
+			fmt.Println(i, j)
+			t.setSingleValue(i, j, m.getSingleValue(j, i))
 		}
 	}
 
@@ -213,8 +214,8 @@ func (m *Matrix) MultiplyVariable(x float64) {
 func (m *Matrix) addMatrix(m2 *Matrix) {
 	for i := 1; i <= m.GetColumnNumber(); i++ {
 		for j := 1; j <= m.GetRowNumber(); j++ {
-			newVal := m.getSingleValue(i, j) + m2.getSingleValue(i, j)
-			m.SetSingleValue(i, j, newVal)
+			newVal := m.getSingleValue(j, i) + m2.getSingleValue(j, i)
+			m.setSingleValue(j, i, newVal)
 		}
 	}
 }
