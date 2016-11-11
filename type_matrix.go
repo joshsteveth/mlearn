@@ -177,7 +177,6 @@ func (m *Matrix) transpose() *Matrix {
 	for i := 1; i <= newRow; i++ {
 		for j := 1; j <= newCol; j++ {
 			//also switch the index from original matrix's value
-			fmt.Println(i, j)
 			t.setSingleValue(i, j, m.getSingleValue(j, i))
 		}
 	}
@@ -231,4 +230,59 @@ func (m *Matrix) AddMatrix(m2 *Matrix) error {
 
 	m.addMatrix(m2)
 	return nil
+}
+
+//function to return list of row as well as column vectors
+func (m *Matrix) getRowVector(row int) *Vector {
+	return m.val[row]
+}
+
+func (m *Matrix) GetRowVector(row int) (*Vector, error) {
+	if m.GetRowNumber() < row {
+		return nil, fmt.Errorf("Index row out of range")
+	}
+
+	return m.getRowVector(row), nil
+}
+
+func (m *Matrix) GetAllRowVectors() []*Vector {
+	var result []*Vector
+	for key, _ := range m.val {
+		result = append(result, m.getRowVector(key))
+	}
+	return result
+}
+
+//getting column vector is a little bit tricky
+//it requires to convert the list of elements into vector
+func (m *Matrix) getColumnVector(col int) *Vector {
+	var result []float64
+	for i := 1; i <= m.GetRowNumber(); i++ {
+		result = append(result, m.getSingleValue(i, col))
+	}
+	return NewVector(result)
+}
+
+func (m *Matrix) GetColumnVector(col int) (*Vector, error) {
+	if m.GetColumnNumber() < col {
+		return nil, fmt.Errorf("Index column out of range")
+	}
+
+	return m.getColumnVector(col), nil
+}
+
+func (m *Matrix) GetAllColumnVectors() []*Vector {
+	var result []*Vector
+
+	//matrix should have at least 1 row vector to begin with
+	//return empty result otherwise
+	if len(m.val) == 0 {
+		return result
+	}
+
+	for i := 1; i <= m.val[1].GetLength(); i++ {
+		result = append(result, m.getColumnVector(i))
+	}
+
+	return result
 }

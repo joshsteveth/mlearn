@@ -134,3 +134,45 @@ func TestAddMatrix(t *testing.T) {
 
 	fmt.Printf("Added Matrix: (Should be 2x3 with values = 5)\n%s\n", m)
 }
+
+func TestGetRowVector(t *testing.T) {
+	input := [][]float64{
+		[]float64{3, 4, 5},
+		[]float64{1, 7, 2},
+	}
+
+	m, _ := NewMatrix(input)
+
+	_, err := m.GetRowVector(3)
+	assert.Error(t, err)
+
+	rowV, err := m.GetRowVector(2)
+	assert.NoError(t, err)
+	assert.Equal(t, float64(7), rowV.getSingleValue(2))
+
+	fmt.Printf("Row vector should be [1,7,2]\n%s\n\n", rowV)
+
+	allRows := m.GetAllRowVectors()
+	assert.Equal(t, 2, len(allRows))
+}
+
+func TestGetColumnVectors(t *testing.T) {
+	input := [][]float64{
+		[]float64{3, 4, 5},
+		[]float64{1, 7, 2},
+	}
+
+	m, _ := NewMatrix(input)
+
+	_, err := m.GetColumnVector(4)
+	assert.Error(t, err)
+
+	colV, err := m.GetColumnVector(3)
+	assert.NoError(t, err)
+	assert.Equal(t, float64(5), colV.getSingleValue(1))
+
+	fmt.Printf("Col vector should be [5,2]\n%s\n\n", colV)
+
+	allColumns := m.GetAllColumnVectors()
+	assert.Equal(t, 3, len(allColumns))
+}
