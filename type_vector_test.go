@@ -2,6 +2,7 @@ package ml
 
 import (
 	"fmt"
+	"math"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -87,7 +88,7 @@ func TestAddVector(t *testing.T) {
 		assert.Equal(t, float64(5), v.getSingleValue(i))
 	}
 
-	fmt.Printf("Result of result vector should be all 5\n%s\n", v)
+	fmt.Printf("Result of result vector should be all 5\n%s\n\n", v)
 }
 
 func TestDotProduct(t *testing.T) {
@@ -106,4 +107,26 @@ func TestDotProduct(t *testing.T) {
 	result, err := v.DotProduct(v3)
 	assert.NoError(t, err)
 	assert.Equal(t, float64(16), result)
+}
+
+func TestPowerOfVector(t *testing.T) {
+	input := []float64{1, 2, 3}
+	v := NewVector(input)
+
+	v.PowerOf(2)
+	for i := 1; i <= v.GetLength(); i++ {
+		assert.Equal(t, float64(math.Pow(float64(i), 2)), v.getSingleValue(i))
+	}
+	fmt.Printf("Result of calculated pow vector should be [1,4,9]\n%s\n\n", v)
+}
+
+func TestLog10Vector(t *testing.T) {
+	input := []float64{1, 10, 100}
+	v := NewVector(input)
+
+	v.Log10()
+	for i := 1; i <= v.GetLength(); i++ {
+		assert.Equal(t, float64(i-1), v.getSingleValue(i))
+	}
+	fmt.Printf("Result of calculated log10 vector should be [0,1,2]\n%s\n\n", v)
 }

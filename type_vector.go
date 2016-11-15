@@ -2,6 +2,7 @@ package ml
 
 import (
 	"fmt"
+	"math"
 	"strings"
 )
 
@@ -82,18 +83,62 @@ func (v *Vector) SetValue(input []float64) error {
 	return nil
 }
 
-//add a variable into the vector
-func (v *Vector) AddVariable(x float64) {
+///////////////////////////
+////////CALCULATOR////////
+//////////////////////////
+
+//make vector support a simple basic general calculation which modify the value
+func (v *Vector) Calculate(op func(float64) float64) {
 	for i := 1; i <= v.GetLength(); i++ {
-		v.setSingleValue(i, v.getSingleValue(i)+x)
+		v.setSingleValue(i, op(v.getSingleValue(i)))
 	}
 }
 
-//multiply vector with a variable
-func (v *Vector) MultiplyVariable(x float64) {
-	for i := 1; i <= v.GetLength(); i++ {
-		v.setSingleValue(i, v.getSingleValue(i)*x)
+//collection of functions for calculate
+
+//add a single variable
+func (v *Vector) addVar(n float64) func(float64) float64 {
+	return func(x float64) float64 {
+		return x + n
 	}
+}
+
+func (v *Vector) AddVariable(n float64) {
+	v.Calculate(v.addVar(n))
+}
+
+//multiply with a single variable
+func (v *Vector) multiplyVar(n float64) func(float64) float64 {
+	return func(x float64) float64 {
+		return x * n
+	}
+}
+
+func (v *Vector) MultiplyVariable(n float64) {
+	v.Calculate(v.multiplyVar(n))
+}
+
+//get a power of n
+//for example pow(2) from 3 is 9
+func (v *Vector) powerOf(n float64) func(float64) float64 {
+	return func(x float64) float64 {
+		return math.Pow(x, n)
+	}
+}
+
+func (v *Vector) PowerOf(n float64) {
+	v.Calculate(v.powerOf(n))
+}
+
+//get the decadic logarithm
+func (v *Vector) log10() func(float64) float64 {
+	return func(x float64) float64 {
+		return math.Log10(x)
+	}
+}
+
+func (v *Vector) Log10() {
+	v.Calculate(v.log10())
 }
 
 //add a vector to a vector
