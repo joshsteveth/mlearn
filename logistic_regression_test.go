@@ -1,7 +1,10 @@
 package ml
 
 import (
+	"encoding/csv"
 	"fmt"
+	"io/ioutil"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -102,4 +105,15 @@ func TestLogisticRegressionCalculateResult(t *testing.T) {
 	fmt.Printf("Updated Logistic regression cost func: %.5f\n", cost)
 
 	fmt.Println("")
+}
+
+func TestLogisticRegressionFromExData(t *testing.T) {
+	t.Skip()
+	exFile, _ := ioutil.ReadFile("data1.csv")
+	r := csv.NewReader(strings.NewReader(string(exFile)))
+	records, err := r.ReadAll()
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Printf("%+v\n", records)
 }

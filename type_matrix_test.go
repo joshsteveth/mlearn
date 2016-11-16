@@ -210,3 +210,13 @@ func TestMulyiplyMatrixes(t *testing.T) {
 
 	fmt.Printf("2nd row vector of multiplication result should be [10, 59, 21]\n%s\n\n", rowVec)
 }
+
+func TestLoadCSVToMatrix(t *testing.T) {
+	file := "data1.csv"
+	m, err := LoadNewMatrix(file, ":", "1:2")
+	assert.NoError(t, err)
+	assert.Equal(t, 2, m.GetColumnNumber())
+	assert.Equal(t, 100, m.GetRowNumber())
+
+	fmt.Println(m)
+}

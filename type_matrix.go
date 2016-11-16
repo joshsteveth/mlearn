@@ -1,7 +1,10 @@
 package ml
 
 import (
+	"encoding/csv"
 	"fmt"
+	"io/ioutil"
+	"strings"
 )
 
 type (
@@ -12,6 +15,10 @@ type (
 		val map[int]*Vector
 	}
 )
+
+///////////////////////////
+////////NEW MATRIX////////
+//////////////////////////
 
 //create a new zero matrix with zeros
 func NewZeroMatrix(numRow, numCol int) *Matrix {
@@ -63,6 +70,38 @@ func NewMatrix(input [][]float64) (*Matrix, error) {
 	return &m, nil
 }
 
+//load matrix from the selected path
+//using encoding csv so the file should support csv formatting with comma
+//all string should be parseable into float64
+func LoadNewMatrix(fileName, row, col string) (*Matrix, error) {
+	//load the filename and convert it into [][]string first
+	file, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		return nil, err
+	}
+	r := csv.NewReader(strings.NewReader(string(file)))
+	records, err := r.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	//convert the [][]string into [][]float first
+	floats, err := convertCSVToFloat64(records)
+	if err != nil {
+		return nil, err
+	}
+
+	//filter the result (and also validate it)
+	filtered, err := filterInputByCat(floats, row, col)
+	if err != nil {
+		return nil, err
+	}
+
+	var m Matrix
+	m.setValue(filtered)
+	return &m, nil
+}
+
 //get number of column and row of a matrix
 func (m *Matrix) GetColumnNumber() int { return m.val[1].GetLength() }
 func (m *Matrix) GetRowNumber() int    { return len(m.val) }
@@ -72,8 +111,8 @@ func (m *Matrix) String() string {
 	sprint := fmt.Sprintf("Num Column: %d\nNum Row: %d\n",
 		m.GetColumnNumber(), m.GetRowNumber())
 
-	for row, col := range m.val {
-		sprint += fmt.Sprintf("Row %d: %s\n", row, col)
+	for i := 1; i <= m.GetRowNumber(); i++ {
+		sprint += fmt.Sprintf("Row %d: %s\n", i, m.val[i])
 	}
 
 	return sprint
@@ -294,14 +333,12 @@ func (m *Matrix) multiply(m2 *Matrix) *Matrix {
 	//create new matrix with row = m's row and column = m2's column
 	res := NewZeroMatrix(m.GetRowNumber(), m2.GetColumnNumber())
 
-	//get all row vectors from m and column vectors from m2
-	rowVec := m.GetAllRowVectors()
-	colVec := m2.GetAllColumnVectors()
-
-	for i := 1; i <= len(rowVec); i++ {
-		for j := 1; j <= len(colVec); j++ {
+	for i := 1; i <= m.GetRowNumber(); i++ {
+		for j := 1; j <= m.GetColumnNumber(); j++ {
 			//create dot product between row and col vectors
-			dp := rowVec[i-1].dotProduct(colVec[j-1])
+			rowVec := m.getRowVector(i)
+			colVec := m2.getColumnVector(j)
+			dp := rowVec.dotProduct(colVec)
 			res.setSingleValue(i, j, dp)
 		}
 	}
