@@ -18,7 +18,7 @@ type (
 ////////NEW VECTOR/////////
 //////////////////////////
 
-//create a new vector matrix with zeros
+//create a new vector with zeros
 func NewZeroVector(numElem int) *Vector {
 	v := []float64{}
 
@@ -30,7 +30,19 @@ func NewZeroVector(numElem int) *Vector {
 	return &Vector{val: v}
 }
 
-//crate a new vector matrix with an array of int as input
+//create a new vector with a certain value
+func NewConstantVector(numElem int, val float64) *Vector {
+	v := []float64{}
+
+	//loop from 1...numElem to create the key
+	for i := 0; i < numElem; i++ {
+		v = append(v, val)
+	}
+
+	return &Vector{val: v}
+}
+
+//crate a new vector with an array of int as input
 func NewVector(input []float64) *Vector {
 	return &Vector{val: input}
 }
@@ -204,11 +216,19 @@ func (v *Vector) Log10() {
 	v.Calculate(v.log10())
 }
 
+//make vector support a simple basic general calculation which modify the value
+//this time index is needed to fiture out which index should be used
+func (v *Vector) CalculateVector(op func(float64, int) float64) {
+	for i := 1; i <= v.GetLength(); i++ {
+		v.setSingleValue(i, op(v.getSingleValue(i), i))
+	}
+}
+
 //add a vector to a vector
 //as validation both dimensions must agree
-func (v *Vector) addVector(v2 *Vector) {
-	for i := 1; i <= v.GetLength(); i++ {
-		v.setSingleValue(i, v.getSingleValue(i)+v2.getSingleValue(i))
+func (v *Vector) addVector(v2 *Vector) func(float64, int) float64 {
+	return func(x float64, i int) float64 {
+		return x + v2.getSingleValue(i)
 	}
 }
 
@@ -217,11 +237,29 @@ func (v *Vector) AddVector(v2 *Vector) error {
 		return fmt.Errorf("Dimensions of both vectors don't agree")
 	}
 
-	v.addVector(v2)
+	//v.addVector(v2)
+	v.CalculateVector(v.addVector(v2))
 	return nil
 }
 
-//multiplication between vectors v and v2
+//multiply a vector to a vector
+//as validation both dimensions must agree
+func (v *Vector) multiplyVector(v2 *Vector) func(float64, int) float64 {
+	return func(x float64, i int) float64 {
+		return x * v2.getSingleValue(i)
+	}
+}
+
+func (v *Vector) MultiplyVector(v2 *Vector) error {
+	if v.GetLength() != v2.GetLength() {
+		return fmt.Errorf("Dimensions of both vectors don't agree")
+	}
+
+	v.CalculateVector(v.multiplyVector(v2))
+	return nil
+}
+
+//dot product between vectors v and v2
 //e.g. res := v[1]*v2[1] + v[2]*v2[2] + ... + v[n]*v2[n]
 func (v *Vector) dotProduct(v2 *Vector) float64 {
 	var result float64

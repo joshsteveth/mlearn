@@ -146,3 +146,13 @@ func TestAddValueVector(t *testing.T) {
 	v2 := NewVector([]float64{1, 10, 100, 1000})
 	assert.Equal(t, v2, v)
 }
+
+func TestMultiplyVector(t *testing.T) {
+	v1 := NewVector([]float64{1, 2, 3})
+	v2 := NewVector([]float64{3, 2, 1})
+	v3 := NewVector([]float64{3, 4, 3})
+
+	err := v1.MultiplyVector(v2)
+	assert.NoError(t, err)
+	assert.Equal(t, v1.val, v3.val)
+}

@@ -256,3 +256,19 @@ func TestAddColumnVectorMatrix(t *testing.T) {
 	assert.Equal(t, 4, m.GetColumnNumber())
 	assert.Equal(t, float64(1), m.getSingleValue(1, 4))
 }
+
+func TestNewFeatureMatrix(t *testing.T) {
+	v1 := NewVector([]float64{1, 2, 3})
+	v2 := NewVector([]float64{0, 1, 4})
+	v3 := NewVector([]float64{1, 2})
+
+	_, err := NewFeatureMatrix(v1, v3, 1)
+	assert.Error(t, err)
+
+	m, err := NewFeatureMatrix(v1, v2, 2)
+	assert.NoError(t, err)
+	assert.Equal(t, 6, m.GetColumnNumber())
+	assert.Equal(t, 3, m.GetRowNumber())
+	assert.Equal(t, float64(16), m.getSingleValue(3, 6))
+	fmt.Println(m)
+}

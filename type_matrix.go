@@ -34,6 +34,20 @@ func NewZeroMatrix(numRow, numCol int) *Matrix {
 	}
 }
 
+//create a new matrix with a constant
+func NewConstantMatrix(numRow, numCol int, val float64) *Matrix {
+	m := map[int]*Vector{}
+
+	//loop from 1 ... numCol to create the key
+	for i := 1; i <= numRow; i++ {
+		m[i] = NewConstantVector(numCol, val)
+	}
+
+	return &Matrix{
+		val: m,
+	}
+}
+
 //create a new matrix with [][]int as an input
 //validate the input first
 func validateMatrixInput(input [][]float64) error {
@@ -68,6 +82,41 @@ func NewMatrix(input [][]float64) (*Matrix, error) {
 	var m Matrix
 	m.setValue(input)
 	return &m, nil
+}
+
+//Add feature to a matrix
+//e.g. for number of feature = 2 it will yield:
+//1, x1, x2, x1^2, x1*x2, x2^2
+//number feature = 0 yield a 1 matrix
+//number feature = 1 only adds a 1 column vector
+//as validation, both vectors should have the same length
+func NewFeatureMatrix(v1, v2 *Vector, numfeat uint) (*Matrix, error) {
+	if v1.GetLength() != v2.GetLength() {
+		return nil, fmt.Errorf("Length of both input vectors are not the same")
+	}
+
+	//create new constant matrix with ones
+	m := NewConstantMatrix(v1.GetLength(), 1, 1)
+
+	//now loop between 1 until numfeat
+	for i := 1; i <= int(numfeat); i++ {
+		//also loop from 0 to i
+		for j := 0; j <= i; j++ {
+			//create new variable to avoid changing value by pointer
+			var v12, v22 []float64
+			v12 = append(v12, v1.val...)
+			v22 = append(v22, v2.val...)
+
+			//the new column vector is multiplication from v1^(i-j) and v2(j)
+			vec1, vec2 := NewVector(v12), NewVector(v22)
+			vec1.PowerOf(float64(i - j))
+			vec2.PowerOf(float64(j))
+			vec1.MultiplyVector(vec2)
+
+			m.addColumnVector(vec1)
+		}
+	}
+	return m, nil
 }
 
 //load matrix from the selected path
