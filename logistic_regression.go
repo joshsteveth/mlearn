@@ -34,8 +34,14 @@ func NewLogisticRegression(x *Matrix, y, theta *Vector, alpha float64) (*LReg, e
 	}
 
 	//3. validation
-	if x.GetColumnNumber() != theta.GetLength() {
+	if x.GetColumnNumber()+1 != theta.GetLength() {
 		return nil, fmt.Errorf("Number of X and theta features are not the same")
+	}
+	//add 1 input input vector
+	for key, val := range x.val {
+		newx := []float64{1}
+		newx = append(newx, val.val...)
+		x.val[key] = NewVector(newx)
 	}
 
 	//4. validation
@@ -69,7 +75,7 @@ Learning rate alpha: %.2f
 //validation is only that the length of theta should be same as input vector
 //h = 1 / (1 + e^(-theta * x))
 func (lr *LReg) h(input *Vector) float64 {
-	return 1 / (1 + math.Pow(math.E, -1*lr.theta.dotProduct(input)))
+	return sigm(lr.theta.dotProduct(input))
 }
 
 func (lr *LReg) CalculateResult(input *Vector) (float64, error) {
@@ -87,12 +93,11 @@ func (lr *LReg) CalculateResult(input *Vector) (float64, error) {
 func (lr *LReg) cost(index int) float64 {
 	y := lr.y.getSingleValue(index)
 	x := lr.x.getRowVector(index)
-
 	switch y {
 	case 0:
-		return math.Log10(lr.h(x)) * -1
+		return math.Log(1-lr.h(x)) * -1
 	case 1:
-		return math.Log10(1-lr.h(x)) * -1
+		return math.Log(lr.h(x)) * -1
 	}
 
 	return 0
@@ -125,13 +130,29 @@ func (lr *LReg) derivTheta(index int) float64 {
 	return sigma / float64(m)
 }
 
-func (lr *LReg) UpdateGradient() {
-	n := lr.theta.GetLength()
+func (lr *LReg) CalculateGrad() *Vector {
+	n := lr.x.GetColumnNumber()
 
+	var newTheta []float64
 	for j := 1; j <= n; j++ {
 		//calculate the derivative from index j
-		deriv := lr.derivTheta(j) * lr.alpha
-		//update the thetaj with the new value
-		lr.theta.setSingleValue(j, lr.theta.getSingleValue(j)-deriv)
+		newTheta = append(newTheta, lr.derivTheta(j))
+	}
+
+	return NewVector(newTheta)
+}
+
+//update the theta as much as itr iterrations
+func (lr *LReg) updateGrad() {
+	grad := lr.CalculateGrad()
+	grad.MultiplyVariable(-1 * lr.alpha)
+	lr.theta.AddVector(grad)
+
+	fmt.Println("cost func: ", lr.CostFunc())
+}
+
+func (lr *LReg) UpdateGrad(itr int) {
+	for i := 0; i < itr; i++ {
+		lr.updateGrad()
 	}
 }

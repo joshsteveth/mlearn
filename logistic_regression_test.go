@@ -1,11 +1,9 @@
 package ml
 
 import (
-	"encoding/csv"
 	"fmt"
-	"io/ioutil"
-	"strings"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -43,8 +41,8 @@ func TestValidateNewLogisticRegression(t *testing.T) {
 	y1 := NewVector([]float64{1, 2, 3})
 	y2 := NewVector([]float64{1, 0, 0})
 
-	theta1 := NewVector([]float64{1, 2, 3})
-	theta2 := NewVector([]float64{1, 2, 3, 4})
+	theta1 := NewVector([]float64{1, 2, 3, 4})
+	theta2 := NewVector([]float64{1, 2, 3, 4, 5})
 
 	alpha1 := float64(0)
 	alpha2 := float64(1)
@@ -57,17 +55,25 @@ func TestValidateNewLogisticRegression(t *testing.T) {
 	_, err = NewLogisticRegression(x1, y2, theta1, alpha2)
 	assert.Error(t, err)
 
+	x2, _ = NewMatrix(xinput2)
+
 	//3.validation
 	_, err = NewLogisticRegression(x2, y2, theta2, alpha2)
 	assert.Error(t, err)
+
+	x2, _ = NewMatrix(xinput2)
 
 	//4.validation
 	_, err = NewLogisticRegression(x2, y2, theta1, alpha1)
 	assert.Error(t, err)
 
+	x2, _ = NewMatrix(xinput2)
+
 	//5.validation
 	_, err = NewLogisticRegression(x2, y1, theta1, alpha2)
 	assert.Error(t, err)
+
+	x2, _ = NewMatrix(xinput2)
 
 	//all correct
 	_, err = NewLogisticRegression(x2, y2, theta1, alpha2)
@@ -76,14 +82,15 @@ func TestValidateNewLogisticRegression(t *testing.T) {
 }
 
 func TestLogisticRegressionCalculateResult(t *testing.T) {
-	lreg := newLogisticReg(1)
+	t.Skip()
+	lreg := newLogisticReg(1.5)
 	fmt.Println(lreg)
 
 	xfalse := NewVector([]float64{1, 2})
 	_, err := lreg.CalculateResult(xfalse)
 	assert.Error(t, err)
 
-	x := NewVector([]float64{1, 2, 3})
+	x := NewVector([]float64{3, 3, 3})
 	res, err := lreg.CalculateResult(x)
 	assert.NoError(t, err)
 	fmt.Printf("Logistic regression result: %.5f\n", res)
@@ -92,28 +99,63 @@ func TestLogisticRegressionCalculateResult(t *testing.T) {
 	cost := lreg.CostFunc()
 	fmt.Printf("Logistic regression cost func: %.5f\n", cost)
 
-	//test update the gradient value
-	lreg.UpdateGradient()
-	fmt.Printf("New theta: \n%s\n", lreg.theta)
-
-	//calculation of 3,3,3 now should be very close to 0
-	res, _ = lreg.CalculateResult(x)
-	fmt.Printf("Updated Logistic regression result: %.5f\n", res)
-
-	//calculate the updated cost function
-	cost = lreg.CostFunc()
-	fmt.Printf("Updated Logistic regression cost func: %.5f\n", cost)
-
 	fmt.Println("")
 }
 
 func TestLogisticRegressionFromExData(t *testing.T) {
-	t.Skip()
-	exFile, _ := ioutil.ReadFile("data1.csv")
-	r := csv.NewReader(strings.NewReader(string(exFile)))
-	records, err := r.ReadAll()
-	if err != nil {
-		fmt.Println(err)
+	//t.Skip()
+	file := "data1.csv"
+
+	//use the first 80 rows for training data
+	x, _ := LoadNewMatrix(file, "1:80", "1:2")
+
+	y, _ := LoadNewVector(file, "1:80", "3")
+	theta := NewZeroVector(x.GetColumnNumber() + 1)
+
+	lreg, err := NewLogisticRegression(x, y, theta, 0.001)
+	assert.NoError(t, err)
+
+	cost := lreg.CostFunc()
+	fmt.Printf("Logistic regression cost func: %.5f\n", cost)
+	fmt.Println("")
+
+	grad := lreg.CalculateGrad()
+	fmt.Printf("Logistic regression grad : %s\n", grad)
+
+	numIt := 300000
+	timeNow := time.Now()
+	lreg.UpdateGrad(numIt)
+	fmt.Printf("Time needed for %d iterations: %.0fs\n", numIt, time.Since(timeNow).Seconds())
+	fmt.Printf("New logistic regression theta: %s\n", lreg.theta)
+	fmt.Printf("New logistic regression cost func: %.5f\n", lreg.CostFunc())
+
+	//use the remaining 20 for verification
+	xverif, _ := LoadNewMatrix(file, "81:100", "1:2")
+	yverif, _ := LoadNewVector(file, "81:100", "3")
+	thetaverif := lreg.theta
+	lregverif, _ := NewLogisticRegression(xverif, yverif, thetaverif, 1)
+
+	var predictTrue, predictFalse int
+	for i := 1; i <= xverif.GetRowNumber(); i++ {
+		xvec, _ := xverif.GetRowVector(i)
+		res := lregverif.h(xvec)
+
+		var pred float64
+		if res > 0.5 {
+			pred = 1
+		}
+		fmt.Printf("Result: %.2f | y = %.0f | Prediction: %.0f\n",
+			res, yverif.getSingleValue(i), pred)
+
+		if pred == yverif.getSingleValue(i) {
+			predictTrue += 1
+		} else {
+			predictFalse += 1
+		}
 	}
-	fmt.Printf("%+v\n", records)
+
+	fmt.Printf("Total true: %d; Total false: %d; precision: %.2f\n",
+		predictTrue, predictFalse, float64(predictTrue)/float64(predictTrue+predictFalse))
+
+	fmt.Println("")
 }
