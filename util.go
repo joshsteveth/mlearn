@@ -2,6 +2,7 @@ package ml
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 )
@@ -148,4 +149,10 @@ func filterInputByCat(input [][]float64, row, col string) ([][]float64, error) {
 	}
 
 	return result, nil
+}
+
+//function to call the sigmoid func
+//sigmoid is defined as g(z) = 1 / (1 + e^(-z))
+func sigm(z float64) float64 {
+	return 1 / (1 + math.Pow(math.E, -1*z))
 }

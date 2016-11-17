@@ -91,3 +91,11 @@ func TestFilterInputByCat(t *testing.T) {
 	assert.Equal(t, 2, len(res[0]))
 	assert.Equal(t, float64(4), res[1][0])
 }
+
+func TestSigmoidFunc(t *testing.T) {
+	res := sigm(0)
+	assert.Equal(t, float64(0.5), res)
+
+	res = sigm(1)
+	assert.Equal(t, "0.73", fmt.Sprintf("%.2f", res))
+}
