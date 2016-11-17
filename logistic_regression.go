@@ -89,44 +89,16 @@ func (lr *LReg) h(input *Vector) float64 {
 	return sigm(lr.theta.dotProduct(input))
 }
 
-//calculate the result as set of y vector
-//if predicted y is lesser than 0.5 then predict it as 0, and 1 otherwise
-func (lr *LReg) CalculateResult(x *Matrix) (*Vector, error) {
-	//first add 1's column vector to x matrix
-	for key, val := range x.val {
-		newx := []float64{1}
-		newx = append(newx, val.val...)
-		x.val[key] = NewVector(newx)
-	}
-
-	//validate both length
-	if x.GetColumnNumber() != lr.theta.GetLength() {
-		return nil, fmt.Errorf("Input vector dimension(%d) does not agree with theta(%d)",
-			x.GetColumnNumber(), lr.theta.GetLength())
-	}
-
-	var result []float64
-	for i := 1; i <= x.GetRowNumber(); i++ {
-		if pred := lr.h(x.getRowVector(i)); pred < 0.5 {
-			result = append(result, 0)
-		} else {
-			result = append(result, 1)
-		}
-	}
-
-	return NewVector(result), nil
-}
-
 //calculate the Cost Func J from logistic regression struct
 //validation should already be done when initiated
-func (lr *LReg) cost(index int, regParam float64) float64 {
+func (lr *LReg) cost(index int) float64 {
 	y := lr.y.getSingleValue(index)
 	x := lr.x.getRowVector(index)
 	switch y {
 	case 0:
-		return (math.Log(1-lr.h(x)) * -1) + regParam
+		return math.Log(1-lr.h(x)) * -1
 	case 1:
-		return (math.Log(lr.h(x)) * -1) + regParam
+		return math.Log(lr.h(x)) * -1
 	}
 
 	return 0
@@ -151,10 +123,10 @@ func (lr *LReg) CostFunc() float64 {
 
 	var result float64
 	for i := 1; i <= m; i++ {
-		result += lr.cost(i, regParam)
+		result += lr.cost(i)
 	}
 
-	return result / float64(m)
+	return (result / float64(m)) + regParam
 }
 
 //calculate the derivative of the cost function by gradient theta
@@ -203,4 +175,32 @@ func (lr *LReg) UpdateGrad(itr int) {
 	for i := 0; i < itr; i++ {
 		lr.updateGrad()
 	}
+}
+
+//calculate the result as set of y vector
+//if predicted y is lesser than 0.5 then predict it as 0, and 1 otherwise
+func (lr *LReg) CalculateResult(x *Matrix) (*Vector, error) {
+	//first add 1's column vector to x matrix
+	for key, val := range x.val {
+		newx := []float64{1}
+		newx = append(newx, val.val...)
+		x.val[key] = NewVector(newx)
+	}
+
+	//validate both length
+	if x.GetColumnNumber() != lr.theta.GetLength() {
+		return nil, fmt.Errorf("Input vector dimension(%d) does not agree with theta(%d)",
+			x.GetColumnNumber(), lr.theta.GetLength())
+	}
+
+	var result []float64
+	for i := 1; i <= x.GetRowNumber(); i++ {
+		if pred := lr.h(x.getRowVector(i)); pred < 0.5 {
+			result = append(result, 0)
+		} else {
+			result = append(result, 1)
+		}
+	}
+
+	return NewVector(result), nil
 }
