@@ -138,3 +138,11 @@ func TestLoadNewVector(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 100, v.GetLength())
 }
+
+func TestAddValueVector(t *testing.T) {
+	input := []float64{1, 10, 100}
+	v := NewVector(input)
+	v.AddValue(1000)
+	v2 := NewVector([]float64{1, 10, 100, 1000})
+	assert.Equal(t, v2, v)
+}

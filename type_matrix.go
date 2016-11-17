@@ -102,10 +102,6 @@ func LoadNewMatrix(fileName, row, col string) (*Matrix, error) {
 	return &m, nil
 }
 
-//get number of column and row of a matrix
-func (m *Matrix) GetColumnNumber() int { return m.val[1].GetLength() }
-func (m *Matrix) GetRowNumber() int    { return len(m.val) }
-
 //modify io.Reader print for matrix
 func (m *Matrix) String() string {
 	sprint := fmt.Sprintf("Num Column: %d\nNum Row: %d\n",
@@ -149,6 +145,14 @@ func (m *Matrix) validate() error {
 
 	return nil
 }
+
+///////////////////////////
+////////GET/SET DATA///////
+//////////////////////////
+
+//get number of column and row of a matrix
+func (m *Matrix) GetColumnNumber() int { return m.val[1].GetLength() }
+func (m *Matrix) GetRowNumber() int    { return len(m.val) }
 
 //get a single value of a Matrix
 //for example to get the 1st column and the 5th row: GetSingleValue(1,5)
@@ -203,72 +207,6 @@ func (m *Matrix) setValue(input [][]float64) {
 	}
 
 	m.val = res
-}
-
-//transpose a Matrix and set the result as transposed
-//validate only once and then do the transpose
-func (m *Matrix) transpose() *Matrix {
-	//create new matrix
-	//switch length of column and row
-	newCol, newRow := m.GetRowNumber(), m.GetColumnNumber()
-	t := NewZeroMatrix(newRow, newCol)
-
-	for i := 1; i <= newRow; i++ {
-		for j := 1; j <= newCol; j++ {
-			//also switch the index from original matrix's value
-			t.setSingleValue(i, j, m.getSingleValue(j, i))
-		}
-	}
-
-	return t
-}
-
-func (m *Matrix) Transpose() (*Matrix, error) {
-	if err := m.validate(); err != nil {
-		return nil, err
-	}
-
-	return m.transpose(), nil
-}
-
-//add a variable into a matrix
-func (m *Matrix) AddVariable(x float64) {
-	for i := 1; i <= m.GetRowNumber(); i++ {
-		m.val[i].AddVariable(x)
-	}
-
-}
-
-//multiply the matrix with a variable
-func (m *Matrix) MultiplyVariable(x float64) {
-	for i := 1; i <= m.GetRowNumber(); i++ {
-		m.val[i].MultiplyVariable(x)
-	}
-}
-
-//add two Matrizes
-//as validation: dimension of both should agree
-//simply add the values from both with the same index
-func (m *Matrix) addMatrix(m2 *Matrix) {
-	for i := 1; i <= m.GetColumnNumber(); i++ {
-		for j := 1; j <= m.GetRowNumber(); j++ {
-			newVal := m.getSingleValue(j, i) + m2.getSingleValue(j, i)
-			m.setSingleValue(j, i, newVal)
-		}
-	}
-}
-
-func (m *Matrix) AddMatrix(m2 *Matrix) error {
-	//make sure both of the dimensions agree
-	if m.GetRowNumber() != m2.GetRowNumber() {
-		return fmt.Errorf("Row number does not agree")
-	}
-	if m.GetColumnNumber() != m2.GetColumnNumber() {
-		return fmt.Errorf("Column number does not agree")
-	}
-
-	m.addMatrix(m2)
-	return nil
 }
 
 //function to return list of row as well as column vectors
@@ -326,6 +264,49 @@ func (m *Matrix) GetAllColumnVectors() []*Vector {
 	return result
 }
 
+///////////////////////////
+////////CALCULATION///////
+//////////////////////////
+
+//add a variable into a matrix
+func (m *Matrix) AddVariable(x float64) {
+	for i := 1; i <= m.GetRowNumber(); i++ {
+		m.val[i].AddVariable(x)
+	}
+}
+
+//multiply the matrix with a variable
+func (m *Matrix) MultiplyVariable(x float64) {
+	for i := 1; i <= m.GetRowNumber(); i++ {
+		m.val[i].MultiplyVariable(x)
+	}
+}
+
+//add two Matrizes
+//as validation: dimension of both should agree
+//simply add the values from both with the same index
+func (m *Matrix) addMatrix(m2 *Matrix) {
+	for i := 1; i <= m.GetColumnNumber(); i++ {
+		for j := 1; j <= m.GetRowNumber(); j++ {
+			newVal := m.getSingleValue(j, i) + m2.getSingleValue(j, i)
+			m.setSingleValue(j, i, newVal)
+		}
+	}
+}
+
+func (m *Matrix) AddMatrix(m2 *Matrix) error {
+	//make sure both of the dimensions agree
+	if m.GetRowNumber() != m2.GetRowNumber() {
+		return fmt.Errorf("Row number does not agree")
+	}
+	if m.GetColumnNumber() != m2.GetColumnNumber() {
+		return fmt.Errorf("Column number does not agree")
+	}
+
+	m.addMatrix(m2)
+	return nil
+}
+
 //Matrix multiplication
 //the order between m and m2 matters
 //number of m's col and m2's row must agree
@@ -353,4 +334,65 @@ func (m *Matrix) Multiply(m2 *Matrix) (*Matrix, error) {
 	}
 
 	return m.multiply(m2), nil
+}
+
+//transpose a Matrix and set the result as transposed
+//validate only once and then do the transpose
+func (m *Matrix) transpose() *Matrix {
+	//create new matrix
+	//switch length of column and row
+	newCol, newRow := m.GetRowNumber(), m.GetColumnNumber()
+	t := NewZeroMatrix(newRow, newCol)
+
+	for i := 1; i <= newRow; i++ {
+		for j := 1; j <= newCol; j++ {
+			//also switch the index from original matrix's value
+			t.setSingleValue(i, j, m.getSingleValue(j, i))
+		}
+	}
+
+	return t
+}
+
+func (m *Matrix) Transpose() (*Matrix, error) {
+	if err := m.validate(); err != nil {
+		return nil, err
+	}
+
+	return m.transpose(), nil
+}
+
+//add a vector to a matrix
+//it's either row or column vector
+//the dimension must agree
+//- for row vector: input length must be the same as column number
+//- for column vector: input length must be the same as row number
+func (m *Matrix) addRowVector(v *Vector) {
+	r := m.GetRowNumber()
+	m.val[r+1] = v
+}
+
+func (m *Matrix) AddRowVector(v *Vector) error {
+	if v.GetLength() != m.GetColumnNumber() {
+		return fmt.Errorf("Vector length must be the same as number of columns")
+	}
+
+	m.addRowVector(v)
+	return nil
+}
+
+func (m *Matrix) addColumnVector(v *Vector) {
+	//update all vector with the index v
+	for i := 1; i <= m.GetRowNumber(); i++ {
+		m.getRowVector(i).AddValue(v.getSingleValue(i))
+	}
+}
+
+func (m *Matrix) AddColumnVector(v *Vector) error {
+	if v.GetLength() != m.GetRowNumber() {
+		return fmt.Errorf("Vector length must be the same as number of rows")
+	}
+
+	m.addColumnVector(v)
+	return nil
 }

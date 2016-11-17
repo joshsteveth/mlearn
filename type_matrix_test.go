@@ -218,3 +218,41 @@ func TestLoadCSVToMatrix(t *testing.T) {
 	assert.Equal(t, 2, m.GetColumnNumber())
 	assert.Equal(t, 100, m.GetRowNumber())
 }
+
+func TestAddRowVectorMatrix(t *testing.T) {
+	input := [][]float64{
+		[]float64{3, 4, 5},
+		[]float64{1, 7, 2},
+	}
+
+	m, _ := NewMatrix(input)
+
+	v := NewVector([]float64{1, 2})
+	err := m.AddRowVector(v)
+	assert.Error(t, err)
+
+	v2 := NewVector([]float64{1, 2, 3})
+	err = m.AddRowVector(v2)
+	assert.NoError(t, err)
+	assert.Equal(t, 3, m.GetRowNumber())
+	assert.Equal(t, float64(3), m.getSingleValue(3, 3))
+}
+
+func TestAddColumnVectorMatrix(t *testing.T) {
+	input := [][]float64{
+		[]float64{3, 4, 5},
+		[]float64{1, 7, 2},
+	}
+
+	m, _ := NewMatrix(input)
+
+	v := NewVector([]float64{1, 2, 3})
+	err := m.AddColumnVector(v)
+	assert.Error(t, err)
+
+	v2 := NewVector([]float64{1, 2})
+	err = m.AddColumnVector(v2)
+	assert.NoError(t, err)
+	assert.Equal(t, 4, m.GetColumnNumber())
+	assert.Equal(t, float64(1), m.getSingleValue(1, 4))
+}

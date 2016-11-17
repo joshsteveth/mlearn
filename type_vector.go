@@ -130,6 +130,11 @@ func (v *Vector) SetValue(input []float64) error {
 	return nil
 }
 
+//add a value to the end of a vector
+func (v *Vector) AddValue(input float64) {
+	v.val = append(v.val, input)
+}
+
 ///////////////////////////
 ////////CALCULATOR////////
 //////////////////////////

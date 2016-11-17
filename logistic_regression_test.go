@@ -156,7 +156,7 @@ func TestLogisticRegressionFromExData(t *testing.T) {
 }
 
 func TestLogisticRegressionWithRegularization(t *testing.T) {
-	//t.Skip()
+	t.Skip()
 	file := "data1.csv"
 
 	//use the first 80 rows for training data
