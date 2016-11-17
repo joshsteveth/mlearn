@@ -132,7 +132,7 @@ func (lr *LReg) CostFunc() float64 {
 //calculate the derivative of the cost function by gradient theta
 //immediately update the value with the new calculated gradient
 //the formula is:
-//thetaj := thetaj - alpha/m  * sigma(i..m)((h(xi) - yi)) * xij)
+//thetaj := thetaj - alpha/m  * sigma(i..m)((h(xi) - yi) * xij)
 //UPDATE: add regularization parameter for index > 1
 //the formula for regularization: lambda / m * thetaj
 func (lr *LReg) derivTheta(index int) float64 {
@@ -142,10 +142,11 @@ func (lr *LReg) derivTheta(index int) float64 {
 	var sigma float64
 	for i := 1; i <= m; i++ {
 		sigma += (lr.h(lr.x.getRowVector(i)) - lr.y.getSingleValue(i)) * lr.x.getRowVector(i).getSingleValue(index)
-		//add regularization parameter for index != 1
-		if index != 1 {
-			sigma += lr.lambda / float64(m) * lr.theta.getSingleValue(index)
-		}
+	}
+
+	//add regularization parameter for index != 1
+	if index != 1 {
+		sigma += lr.lambda / float64(m) * lr.theta.getSingleValue(index)
 	}
 
 	return sigma / float64(m)
