@@ -78,7 +78,8 @@ Training matrix X:
 Gradient Theta: 
 %s
 Learning rate alpha: %.2f
-`, lr.x, lr.y, lr.theta, lr.alpha)
+Regularization factor lambda: %.2f
+`, lr.x, lr.y, lr.theta, lr.alpha, lr.lambda)
 }
 
 //calculate a prediction based on theta and an input vector
@@ -88,14 +89,32 @@ func (lr *LReg) h(input *Vector) float64 {
 	return sigm(lr.theta.dotProduct(input))
 }
 
-func (lr *LReg) CalculateResult(input *Vector) (float64, error) {
-	//validate both length
-	if input.GetLength() != lr.theta.GetLength() {
-		return 0, fmt.Errorf("Input vector dimension(%d) does not agree with theta(%d)",
-			input.GetLength(), lr.theta.GetLength())
+//calculate the result as set of y vector
+//if predicted y is lesser than 0.5 then predict it as 0, and 1 otherwise
+func (lr *LReg) CalculateResult(x *Matrix) (*Vector, error) {
+	//first add 1's column vector to x matrix
+	for key, val := range x.val {
+		newx := []float64{1}
+		newx = append(newx, val.val...)
+		x.val[key] = NewVector(newx)
 	}
 
-	return lr.h(input), nil
+	//validate both length
+	if x.GetColumnNumber() != lr.theta.GetLength() {
+		return nil, fmt.Errorf("Input vector dimension(%d) does not agree with theta(%d)",
+			x.GetColumnNumber(), lr.theta.GetLength())
+	}
+
+	var result []float64
+	for i := 1; i <= x.GetRowNumber(); i++ {
+		if pred := lr.h(x.getRowVector(i)); pred < 0.5 {
+			result = append(result, 0)
+		} else {
+			result = append(result, 1)
+		}
+	}
+
+	return NewVector(result), nil
 }
 
 //calculate the Cost Func J from logistic regression struct
@@ -177,6 +196,7 @@ func (lr *LReg) updateGrad() {
 	grad := lr.CalculateGrad()
 	grad.MultiplyVariable(-1 * lr.alpha)
 	lr.theta.AddVector(grad)
+	fmt.Println(lr.CostFunc())
 }
 
 func (lr *LReg) UpdateGrad(itr int) {

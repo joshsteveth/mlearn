@@ -86,13 +86,8 @@ func TestLogisticRegressionCalculateResult(t *testing.T) {
 	lreg := newLogisticReg(1.5)
 	fmt.Println(lreg)
 
-	xfalse := NewVector([]float64{1, 2})
-	_, err := lreg.CalculateResult(xfalse)
-	assert.Error(t, err)
-
 	x := NewVector([]float64{3, 3, 3})
-	res, err := lreg.CalculateResult(x)
-	assert.NoError(t, err)
+	res := lreg.h(x)
 	fmt.Printf("Logistic regression result: %.5f\n", res)
 
 	//calculate the cost function
@@ -217,6 +212,12 @@ func TestLogisticRegressionWithRegularization(t *testing.T) {
 
 	fmt.Printf("Total true: %d; Total false: %d; precision with regularization: %.2f\n",
 		predictTrue, predictFalse, float64(predictTrue)/float64(predictTrue+predictFalse))
+
+	//use function calculate result
+	x2, _ := LoadNewMatrix(file, "81:100", "1:2")
+	y2, err := lreg.CalculateResult(x2)
+	assert.NoError(t, err)
+	fmt.Printf("Prediction result: %s\n", y2)
 
 	fmt.Println("")
 
