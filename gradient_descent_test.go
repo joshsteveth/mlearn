@@ -27,7 +27,7 @@ func TestGradientDescentCostFunc(t *testing.T) {
 	grad := gd.CalculateGrad()
 	fmt.Printf("Gradient descent without regularization grad: %s\n", grad)
 
-	numIt := 1000
+	numIt := 250
 	timeNow := time.Now()
 	gd.UpdateGrad(numIt)
 	fmt.Printf("Time needed for %d iterations: %.2fs\n", numIt, time.Since(timeNow).Seconds())

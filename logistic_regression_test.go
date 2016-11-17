@@ -178,7 +178,7 @@ func TestLogisticRegressionWithRegularization(t *testing.T) {
 	grad := lreg.CalculateGrad()
 	fmt.Printf("Logistic regression with regularization grad : %s\n", grad)
 
-	numIt := 50000
+	numIt := 25000
 	timeNow := time.Now()
 	lreg.UpdateGrad(numIt)
 	fmt.Printf("Time needed for %d iterations: %.0fs\n", numIt, time.Since(timeNow).Seconds())
