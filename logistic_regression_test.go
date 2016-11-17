@@ -156,7 +156,7 @@ func TestLogisticRegressionFromExData(t *testing.T) {
 }
 
 func TestLogisticRegressionWithRegularization(t *testing.T) {
-	t.Skip()
+	//t.Skip()
 	file := "data1.csv"
 
 	//use the first 80 rows for training data
@@ -200,8 +200,8 @@ func TestLogisticRegressionWithRegularization(t *testing.T) {
 		if res > 0.5 {
 			pred = 1
 		}
-		fmt.Printf("Result: %.2f | y = %.0f | Prediction: %.0f\n",
-			res, yverif.getSingleValue(i), pred)
+		fmt.Printf("Result: %.2f | y = %.0f | Prediction: %.0f | Correct?: %t\n",
+			res, yverif.getSingleValue(i), pred, pred == yverif.getSingleValue(i))
 
 		if pred == yverif.getSingleValue(i) {
 			predictTrue += 1

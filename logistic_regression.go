@@ -169,7 +169,6 @@ func (lr *LReg) updateGrad() {
 	grad := lr.CalculateGrad()
 	grad.MultiplyVariable(-1 * lr.alpha)
 	lr.theta.AddVector(grad)
-	fmt.Println(lr.CostFunc())
 }
 
 func (lr *LReg) UpdateGrad(itr int) {
