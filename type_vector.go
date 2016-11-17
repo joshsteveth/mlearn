@@ -1,7 +1,9 @@
 package ml
 
 import (
+	"encoding/csv"
 	"fmt"
+	"io/ioutil"
 	"math"
 	"strings"
 )
@@ -11,6 +13,10 @@ type (
 		val []float64
 	}
 )
+
+////////////////////////////
+////////NEW VECTOR/////////
+//////////////////////////
 
 //create a new vector matrix with zeros
 func NewZeroVector(numElem int) *Vector {
@@ -27,6 +33,47 @@ func NewZeroVector(numElem int) *Vector {
 //crate a new vector matrix with an array of int as input
 func NewVector(input []float64) *Vector {
 	return &Vector{val: input}
+}
+
+//load vector from a selected path
+//using encoding csv so the file should support csv formatting with comma
+//all string should be parseable into float64
+//column should be a single value (can only use ":" if there's only single column)
+func LoadNewVector(fileName, row, col string) (*Vector, error) {
+	//load the filename and convert it into [][]string first
+	file, err := ioutil.ReadFile(fileName)
+	if err != nil {
+		return nil, err
+	}
+	r := csv.NewReader(strings.NewReader(string(file)))
+	records, err := r.ReadAll()
+	if err != nil {
+		return nil, err
+	}
+
+	//convert the [][]string into [][]float first
+	floats, err := convertCSVToFloat64(records)
+	if err != nil {
+		return nil, err
+	}
+
+	//filter the result (and also validate it)
+	filtered, err := filterInputByCat(floats, row, col)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(filtered) == 0 || len(filtered[0]) != 1 {
+		return nil, fmt.Errorf("Vector should have exactly 1 column")
+	}
+
+	var result []float64
+	//select all col into new []float64
+	for _, f := range filtered {
+		result = append(result, f[0])
+	}
+
+	return &Vector{val: result}, nil
 }
 
 //get number of element of a vector
@@ -128,6 +175,17 @@ func (v *Vector) powerOf(n float64) func(float64) float64 {
 
 func (v *Vector) PowerOf(n float64) {
 	v.Calculate(v.powerOf(n))
+}
+
+//get the natural logarith
+func (v *Vector) log() func(float64) float64 {
+	return func(x float64) float64 {
+		return math.Log(x)
+	}
+}
+
+func (v *Vector) Log() {
+	v.Calculate(v.log())
 }
 
 //get the decadic logarithm

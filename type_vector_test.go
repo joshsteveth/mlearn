@@ -130,3 +130,11 @@ func TestLog10Vector(t *testing.T) {
 	}
 	fmt.Printf("Result of calculated log10 vector should be [0,1,2]\n%s\n\n", v)
 }
+
+func TestLoadNewVector(t *testing.T) {
+	file := "data1.csv"
+
+	v, err := LoadNewVector(file, ":", "3")
+	assert.NoError(t, err)
+	assert.Equal(t, 100, v.GetLength())
+}

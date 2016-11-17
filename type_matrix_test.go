@@ -217,6 +217,4 @@ func TestLoadCSVToMatrix(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, 2, m.GetColumnNumber())
 	assert.Equal(t, 100, m.GetRowNumber())
-
-	fmt.Println(m)
 }
