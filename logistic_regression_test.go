@@ -103,7 +103,7 @@ func TestLogisticRegressionCalculateResult(t *testing.T) {
 }
 
 func TestLogisticRegressionFromExData(t *testing.T) {
-	//t.Skip()
+	t.Skip()
 	file := "data1.csv"
 
 	//use the first 80 rows for training data
@@ -158,4 +158,66 @@ func TestLogisticRegressionFromExData(t *testing.T) {
 		predictTrue, predictFalse, float64(predictTrue)/float64(predictTrue+predictFalse))
 
 	fmt.Println("")
+}
+
+func TestLogisticRegressionWithRegularization(t *testing.T) {
+	//t.Skip()
+	file := "data1.csv"
+
+	//use the first 80 rows for training data
+	x, _ := LoadNewMatrix(file, "1:80", "1:2")
+
+	y, _ := LoadNewVector(file, "1:80", "3")
+	theta := NewZeroVector(x.GetColumnNumber() + 1)
+
+	lreg, err := NewLogisticRegression(x, y, theta, 0.001)
+	assert.NoError(t, err)
+
+	lambda := float64(0.1)
+	lreg.AddRegularizationFactor(lambda)
+
+	cost := lreg.CostFunc()
+	fmt.Printf("Logistic regression with regularization cost func: %.5f\n", cost)
+	fmt.Println("")
+
+	grad := lreg.CalculateGrad()
+	fmt.Printf("Logistic regression with regularization grad : %s\n", grad)
+
+	numIt := 300000
+	timeNow := time.Now()
+	lreg.UpdateGrad(numIt)
+	fmt.Printf("Time needed for %d iterations: %.0fs\n", numIt, time.Since(timeNow).Seconds())
+	fmt.Printf("New logistic regression with regularization theta: %s\n", lreg.theta)
+	fmt.Printf("New logistic regression with regularization cost func: %.5f\n", lreg.CostFunc())
+
+	//use the remaining 20 for verification
+	xverif, _ := LoadNewMatrix(file, "81:100", "1:2")
+	yverif, _ := LoadNewVector(file, "81:100", "3")
+	thetaverif := lreg.theta
+	lregverif, _ := NewLogisticRegression(xverif, yverif, thetaverif, 1)
+
+	var predictTrue, predictFalse int
+	for i := 1; i <= xverif.GetRowNumber(); i++ {
+		xvec, _ := xverif.GetRowVector(i)
+		res := lregverif.h(xvec)
+
+		var pred float64
+		if res > 0.5 {
+			pred = 1
+		}
+		fmt.Printf("Result: %.2f | y = %.0f | Prediction: %.0f\n",
+			res, yverif.getSingleValue(i), pred)
+
+		if pred == yverif.getSingleValue(i) {
+			predictTrue += 1
+		} else {
+			predictFalse += 1
+		}
+	}
+
+	fmt.Printf("Total true: %d; Total false: %d; precision with regularization: %.2f\n",
+		predictTrue, predictFalse, float64(predictTrue)/float64(predictTrue+predictFalse))
+
+	fmt.Println("")
+
 }

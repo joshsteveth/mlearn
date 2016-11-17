@@ -1,4 +1,5 @@
 //v1: supports only single class classification without regularization
+//UPDATE: add regularization
 package ml
 
 import (
@@ -8,10 +9,11 @@ import (
 
 type (
 	LReg struct {
-		x     *Matrix
-		y     *Vector
-		theta *Vector
-		alpha float64
+		x      *Matrix
+		y      *Vector
+		theta  *Vector
+		alpha  float64
+		lambda float64
 	}
 )
 
@@ -57,7 +59,15 @@ func NewLogisticRegression(x *Matrix, y, theta *Vector, alpha float64) (*LReg, e
 		}
 	}
 
-	return &LReg{x, y, theta, alpha}, nil
+	return &LReg{
+		x:     x,
+		y:     y,
+		theta: theta,
+		alpha: alpha}, nil
+}
+
+func (lr *LReg) AddRegularizationFactor(lambda float64) {
+	lr.lambda = lambda
 }
 
 func (lr *LReg) String() string {
@@ -90,25 +100,39 @@ func (lr *LReg) CalculateResult(input *Vector) (float64, error) {
 
 //calculate the Cost Func J from logistic regression struct
 //validation should already be done when initiated
-func (lr *LReg) cost(index int) float64 {
+func (lr *LReg) cost(index int, regParam float64) float64 {
 	y := lr.y.getSingleValue(index)
 	x := lr.x.getRowVector(index)
 	switch y {
 	case 0:
-		return math.Log(1-lr.h(x)) * -1
+		return (math.Log(1-lr.h(x)) * -1) + regParam
 	case 1:
-		return math.Log(lr.h(x)) * -1
+		return (math.Log(lr.h(x)) * -1) + regParam
 	}
 
 	return 0
 }
 
+//calculate the regularization parameter
+//the formula is lambda / (2* m) * sigma(1..n)thetaj^2
+func (lr *LReg) regParam() float64 {
+	m, n := lr.y.GetLength(), lr.theta.GetLength()
+
+	var regParam float64
+	for j := 1; j <= n; j++ {
+		regParam += math.Pow(lr.theta.getSingleValue(j), 2)
+	}
+
+	return regParam * lr.lambda / (2 * float64(m))
+}
+
 func (lr *LReg) CostFunc() float64 {
 	m := lr.y.GetLength()
+	regParam := lr.regParam()
 
 	var result float64
 	for i := 1; i <= m; i++ {
-		result += lr.cost(i)
+		result += lr.cost(i, regParam)
 	}
 
 	return result / float64(m)
@@ -118,6 +142,8 @@ func (lr *LReg) CostFunc() float64 {
 //immediately update the value with the new calculated gradient
 //the formula is:
 //thetaj := thetaj - alpha/m  * sigma(i..m)((h(xi) - yi)) * xij)
+//UPDATE: add regularization parameter for index > 1
+//the formula for regularization: lambda / m * thetaj
 func (lr *LReg) derivTheta(index int) float64 {
 	//calculate deriv from thetaj (j = index)
 	m := lr.y.GetLength()
@@ -125,6 +151,10 @@ func (lr *LReg) derivTheta(index int) float64 {
 	var sigma float64
 	for i := 1; i <= m; i++ {
 		sigma += (lr.h(lr.x.getRowVector(i)) - lr.y.getSingleValue(i)) * lr.x.getRowVector(i).getSingleValue(index)
+		//add regularization parameter for index != 1
+		if index != 1 {
+			sigma += lr.lambda / float64(m) * lr.theta.getSingleValue(index)
+		}
 	}
 
 	return sigma / float64(m)
