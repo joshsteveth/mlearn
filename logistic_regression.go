@@ -146,7 +146,7 @@ func (lr *LReg) derivTheta(index int) float64 {
 
 	//add regularization parameter for index != 1
 	if index != 1 {
-		sigma += lr.lambda / float64(m) * lr.theta.getSingleValue(index)
+		sigma += lr.lambda * lr.theta.getSingleValue(index)
 	}
 
 	return sigma / float64(m)
