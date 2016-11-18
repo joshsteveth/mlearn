@@ -119,7 +119,7 @@ func TestLogisticRegressionFromExData(t *testing.T) {
 
 	numIt := 300000
 	timeNow := time.Now()
-	lreg.UpdateGrad(numIt)
+	lreg.UpdateGrad(numIt, true)
 	fmt.Printf("Time needed for %d iterations: %.0fs\n", numIt, time.Since(timeNow).Seconds())
 	fmt.Printf("New logistic regression theta: %s\n", lreg.theta)
 	fmt.Printf("New logistic regression cost func: %.5f\n", lreg.CostFunc())
@@ -156,7 +156,7 @@ func TestLogisticRegressionFromExData(t *testing.T) {
 }
 
 func TestLogisticRegressionWithRegularization(t *testing.T) {
-	//t.Skip()
+	t.Skip()
 	file := "data1.csv"
 
 	//use the first 80 rows for training data
@@ -180,7 +180,7 @@ func TestLogisticRegressionWithRegularization(t *testing.T) {
 
 	numIt := 25000
 	timeNow := time.Now()
-	lreg.UpdateGrad(numIt)
+	lreg.UpdateGrad(numIt, true)
 	fmt.Printf("Time needed for %d iterations: %.0fs\n", numIt, time.Since(timeNow).Seconds())
 	fmt.Printf("New logistic regression with regularization theta: %s\n", lreg.theta)
 	fmt.Printf("New logistic regression with regularization cost func: %.5f\n", lreg.CostFunc())
@@ -221,4 +221,72 @@ func TestLogisticRegressionWithRegularization(t *testing.T) {
 
 	fmt.Println("")
 
+}
+
+func TestLogisticRegressionWithAddedFeatures(t *testing.T) {
+	//t.Skip()
+	file := "data2.csv"
+
+	numberFeature := uint(6)
+
+	//use the first 80 rows for training data
+	x1, _ := LoadNewVector(file, "1:90", "1")
+	x2, _ := LoadNewVector(file, "1:90", "2")
+	x, err := NewFeatureMatrix(x1, x2, numberFeature)
+	assert.NoError(t, err)
+
+	y, _ := LoadNewVector(file, "1:90", "3")
+	theta := NewZeroVector(x.GetColumnNumber() + 1)
+
+	lreg, err := NewLogisticRegression(x, y, theta, 0.001)
+	assert.NoError(t, err)
+
+	lambda := float64(0.1)
+	lreg.AddRegularizationFactor(lambda)
+
+	cost := lreg.CostFunc()
+	fmt.Printf("Logistic regression with regularization cost func: %.5f\n", cost)
+	fmt.Println("")
+
+	grad := lreg.CalculateGrad()
+	fmt.Printf("Logistic regression with regularization grad : %s\n", grad)
+
+	numIt := 100000
+	timeNow := time.Now()
+	lreg.UpdateGrad(numIt, true)
+	fmt.Printf("Time needed for %d iterations: %.0fs\n", numIt, time.Since(timeNow).Seconds())
+	fmt.Printf("New logistic regression with regularization theta: %s\n", lreg.theta)
+	fmt.Printf("New logistic regression with regularization cost func: %.5f\n", lreg.CostFunc())
+
+	//use the remaining 20 for verification
+	xverif1, _ := LoadNewVector(file, "91:118", "1")
+	xverif2, _ := LoadNewVector(file, "91:118", "2")
+	xverif, err := NewFeatureMatrix(xverif1, xverif2, numberFeature)
+	yverif, _ := LoadNewVector(file, "91:118", "3")
+	thetaverif := lreg.theta
+	lregverif, _ := NewLogisticRegression(xverif, yverif, thetaverif, 1)
+
+	var predictTrue, predictFalse int
+	for i := 1; i <= xverif.GetRowNumber(); i++ {
+		xvec, _ := xverif.GetRowVector(i)
+		res := lregverif.h(xvec)
+
+		var pred float64
+		if res > 0.5 {
+			pred = 1
+		}
+		fmt.Printf("Result: %.2f | y = %.0f | Prediction: %.0f | Correct?: %t\n",
+			res, yverif.getSingleValue(i), pred, pred == yverif.getSingleValue(i))
+
+		if pred == yverif.getSingleValue(i) {
+			predictTrue += 1
+		} else {
+			predictFalse += 1
+		}
+	}
+
+	fmt.Printf("Total true: %d; Total false: %d; precision with regularization: %.2f\n",
+		predictTrue, predictFalse, float64(predictTrue)/float64(predictTrue+predictFalse))
+
+	fmt.Println("")
 }

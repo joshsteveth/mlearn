@@ -165,15 +165,18 @@ func (lr *LReg) CalculateGrad() *Vector {
 }
 
 //update the theta as much as itr iterrations
-func (lr *LReg) updateGrad() {
+func (lr *LReg) updateGrad(debug bool) {
 	grad := lr.CalculateGrad()
 	grad.MultiplyVariable(-1 * lr.alpha)
 	lr.theta.AddVector(grad)
+	if debug {
+		fmt.Println(lr.CostFunc())
+	}
 }
 
-func (lr *LReg) UpdateGrad(itr int) {
+func (lr *LReg) UpdateGrad(itr int, debug bool) {
 	for i := 0; i < itr; i++ {
-		lr.updateGrad()
+		lr.updateGrad(debug)
 	}
 }
 
