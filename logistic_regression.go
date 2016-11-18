@@ -183,13 +183,6 @@ func (lr *LReg) UpdateGrad(itr int, debug bool) {
 //calculate the result as set of y vector
 //if predicted y is lesser than 0.5 then predict it as 0, and 1 otherwise
 func (lr *LReg) CalculateResult(x *Matrix) (*Vector, error) {
-	//first add 1's column vector to x matrix
-	for key, val := range x.val {
-		newx := []float64{1}
-		newx = append(newx, val.val...)
-		x.val[key] = NewVector(newx)
-	}
-
 	//validate both length
 	if x.GetColumnNumber() != lr.theta.GetLength() {
 		return nil, fmt.Errorf("Input vector dimension(%d) does not agree with theta(%d)",

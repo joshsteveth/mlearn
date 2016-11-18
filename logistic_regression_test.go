@@ -156,7 +156,7 @@ func TestLogisticRegressionFromExData(t *testing.T) {
 }
 
 func TestLogisticRegressionWithRegularization(t *testing.T) {
-	t.Skip()
+	//t.Skip()
 	file := "data1.csv"
 
 	//use the first 80 rows for training data
@@ -215,6 +215,7 @@ func TestLogisticRegressionWithRegularization(t *testing.T) {
 
 	//use function calculate result
 	x2, _ := LoadNewMatrix(file, "81:100", "1:2")
+	x2.AddConstantVectorToFirst(1)
 	y2, err := lreg.CalculateResult(x2)
 	assert.NoError(t, err)
 	fmt.Printf("Prediction result: %s\n", y2)
@@ -251,7 +252,7 @@ func TestLogisticRegressionWithAddedFeatures(t *testing.T) {
 	grad := lreg.CalculateGrad()
 	fmt.Printf("Logistic regression with regularization grad : %s\n", grad)
 
-	numIt := 100000
+	numIt := 50000
 	timeNow := time.Now()
 	lreg.UpdateGrad(numIt, true)
 	fmt.Printf("Time needed for %d iterations: %.0fs\n", numIt, time.Since(timeNow).Seconds())
@@ -287,6 +288,10 @@ func TestLogisticRegressionWithAddedFeatures(t *testing.T) {
 
 	fmt.Printf("Total true: %d; Total false: %d; precision with regularization: %.2f\n",
 		predictTrue, predictFalse, float64(predictTrue)/float64(predictTrue+predictFalse))
+
+	predicted, err := lreg.CalculateResult(xverif)
+	assert.NoError(t, err)
+	fmt.Printf("Calculated result: %s\n", predicted)
 
 	fmt.Println("")
 }
