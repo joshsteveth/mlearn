@@ -272,3 +272,19 @@ func TestNewFeatureMatrix(t *testing.T) {
 	assert.Equal(t, float64(16), m.getSingleValue(3, 6))
 	fmt.Println(m)
 }
+
+func TestAddOnesVectorToFirstMatrix(t *testing.T) {
+	input := [][]float64{
+		[]float64{1, 2, 3},
+		[]float64{4, 3, 2},
+	}
+	m, _ := NewMatrix(input)
+
+	m.AddConstantVectorToFirst(1)
+	assert.Equal(t, 2, m.GetRowNumber())
+	assert.Equal(t, 4, m.GetColumnNumber())
+	assert.Equal(t, float64(1), m.getSingleValue(1, 1))
+	assert.Equal(t, float64(1), m.getSingleValue(2, 1))
+	assert.Equal(t, float64(2), m.getSingleValue(2, 4))
+
+}

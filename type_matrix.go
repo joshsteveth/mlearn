@@ -445,3 +445,11 @@ func (m *Matrix) AddColumnVector(v *Vector) error {
 	m.addColumnVector(v)
 	return nil
 }
+
+func (m *Matrix) AddConstantVectorToFirst(cons float64) {
+	for key, val := range m.val {
+		newx := []float64{cons}
+		newx = append(newx, val.val...)
+		m.val[key] = NewVector(newx)
+	}
+}
