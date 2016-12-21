@@ -18,7 +18,7 @@ func newLogisticReg(alpha float64) *LReg {
 	y := NewVector([]float64{1, 0, 0})
 	theta := NewVector([]float64{0, 0, 0, 0})
 
-	result, err := NewLogisticRegression(x, y, theta, alpha)
+	result, _ := NewLogisticRegression(x, y, theta, alpha)
 	return result
 }
 
