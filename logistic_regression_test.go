@@ -16,9 +16,9 @@ func newLogisticReg(alpha float64) *LReg {
 	})
 
 	y := NewVector([]float64{1, 0, 0})
-	theta := NewVector([]float64{0, 0, 0})
+	theta := NewVector([]float64{0, 0, 0, 0})
 
-	result, _ := NewLogisticRegression(x, y, theta, alpha)
+	result, err := NewLogisticRegression(x, y, theta, alpha)
 	return result
 }
 
@@ -82,23 +82,21 @@ func TestValidateNewLogisticRegression(t *testing.T) {
 }
 
 func TestLogisticRegressionCalculateResult(t *testing.T) {
-	t.Skip()
+	//t.Skip()
 	lreg := newLogisticReg(1.5)
 	fmt.Println(lreg)
 
-	x := NewVector([]float64{3, 3, 3})
+	x := NewVector([]float64{3, 3, 3, 3})
 	res := lreg.h(x)
 	fmt.Printf("Logistic regression result: %.5f\n", res)
 
 	//calculate the cost function
 	cost := lreg.CostFunc()
 	fmt.Printf("Logistic regression cost func: %.5f\n", cost)
-
-	fmt.Println("")
 }
 
 func TestLogisticRegressionFromExData(t *testing.T) {
-	t.Skip()
+	//t.Skip()
 	file := "data1.csv"
 
 	//use the first 80 rows for training data
@@ -117,7 +115,7 @@ func TestLogisticRegressionFromExData(t *testing.T) {
 	grad := lreg.CalculateGrad()
 	fmt.Printf("Logistic regression grad : %s\n", grad)
 
-	numIt := 300000
+	numIt := 5000
 	timeNow := time.Now()
 	lreg.UpdateGrad(numIt, true)
 	fmt.Printf("Time needed for %d iterations: %.0fs\n", numIt, time.Since(timeNow).Seconds())
@@ -156,7 +154,7 @@ func TestLogisticRegressionFromExData(t *testing.T) {
 }
 
 func TestLogisticRegressionWithRegularization(t *testing.T) {
-	t.Skip()
+	//t.Skip()
 	file := "data1.csv"
 
 	//use the first 80 rows for training data
@@ -178,7 +176,7 @@ func TestLogisticRegressionWithRegularization(t *testing.T) {
 	grad := lreg.CalculateGrad()
 	fmt.Printf("Logistic regression with regularization grad : %s\n", grad)
 
-	numIt := 25000
+	numIt := 5000
 	timeNow := time.Now()
 	lreg.UpdateGrad(numIt, true)
 	fmt.Printf("Time needed for %d iterations: %.0fs\n", numIt, time.Since(timeNow).Seconds())
@@ -225,7 +223,7 @@ func TestLogisticRegressionWithRegularization(t *testing.T) {
 }
 
 func TestLogisticRegressionWithAddedFeatures(t *testing.T) {
-	t.Skip()
+	//t.Skip()
 	file := "data2.csv"
 
 	numberFeature := uint(6)
@@ -252,7 +250,7 @@ func TestLogisticRegressionWithAddedFeatures(t *testing.T) {
 	grad := lreg.CalculateGrad()
 	fmt.Printf("Logistic regression with regularization grad : %s\n", grad)
 
-	numIt := 50000
+	numIt := 5000
 	timeNow := time.Now()
 	lreg.UpdateGrad(numIt, true)
 	fmt.Printf("Time needed for %d iterations: %.0fs\n", numIt, time.Since(timeNow).Seconds())
