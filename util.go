@@ -51,7 +51,7 @@ func vectorCat(cat string) ([]int, error) {
 			return nil, err
 		} else {
 			if res < 1 {
-				return nil, fmt.Errorf("Index should be greater than 0")
+				return nil, ErrOutOfRange
 			}
 
 			return []int{res}, nil
@@ -64,7 +64,7 @@ func vectorCat(cat string) ([]int, error) {
 				return nil, err
 			} else {
 				if res < 1 {
-					return nil, fmt.Errorf("Index should be greater than 0")
+					return nil, ErrOutOfRange
 				}
 
 				result = append(result, res)
@@ -110,7 +110,7 @@ func filterInputByCat(input [][]float64, row, col string) ([][]float64, error) {
 	case 1:
 		//validate the input to prevent panic
 		if len(input) < rows[0] {
-			return nil, fmt.Errorf("Row index out of range")
+			return nil, ErrOutOfRange
 		}
 		//append only the selected row
 		rowsV = append(rowsV, input[rows[0]-1])
@@ -130,7 +130,7 @@ func filterInputByCat(input [][]float64, row, col string) ([][]float64, error) {
 	case 1:
 		//validate the input to prevent panic
 		if len(rowsV) == 0 || len(rowsV[0]) < cols[0] {
-			return nil, fmt.Errorf("Column index out of range")
+			return nil, ErrOutOfRange
 		}
 		//append only the selected row
 		for _, flt := range rowsV {

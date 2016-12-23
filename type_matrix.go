@@ -53,14 +53,14 @@ func NewConstantMatrix(numRow, numCol int, val float64) *Matrix {
 func validateMatrixInput(input [][]float64) error {
 	//the input can't be empty
 	if len(input) == 0 {
-		return fmt.Errorf("Input matrix should not be empty")
+		return ErrEmptyMatrix
 	}
 
 	//get the first element's length
 	//this should not be empty
 	numCol := len(input[0])
 	if numCol == 0 {
-		return fmt.Errorf("Empty row vector detected")
+		return ErrEmptyMatrix
 	}
 
 	//the other rows length should agree with this
@@ -92,7 +92,7 @@ func NewMatrix(input [][]float64) (*Matrix, error) {
 //as validation, both vectors should have the same length
 func NewFeatureMatrix(v1, v2 *Vector, numfeat uint) (*Matrix, error) {
 	if v1.GetLength() != v2.GetLength() {
-		return nil, fmt.Errorf("Length of both input vectors are not the same")
+		return nil, ErrMatrixIncorrentVectorLength
 	}
 
 	//create new constant matrix with ones
@@ -171,13 +171,13 @@ func (m *Matrix) validate() error {
 	//of course return error if the matrix has no row
 	numRow = m.GetRowNumber()
 	if numRow == 0 {
-		return fmt.Errorf("Matrix is empty")
+		return ErrEmptyMatrix
 	}
 
 	//also return error if the length of first value of map is 0
 	//or even does not exist
 	if _, ok := m.val[1]; !ok {
-		return fmt.Errorf("First row element does not exist")
+		return ErrEmptyMatrix
 	} else {
 		numCol = m.GetColumnNumber()
 		if numCol == 0 {
@@ -265,7 +265,7 @@ func (m *Matrix) getRowVector(row int) *Vector {
 
 func (m *Matrix) GetRowVector(row int) (*Vector, error) {
 	if m.GetRowNumber() < row {
-		return nil, fmt.Errorf("Index row out of range")
+		return nil, ErrOutOfRange
 	}
 
 	return m.getRowVector(row), nil
@@ -291,7 +291,7 @@ func (m *Matrix) getColumnVector(col int) *Vector {
 
 func (m *Matrix) GetColumnVector(col int) (*Vector, error) {
 	if m.GetColumnNumber() < col {
-		return nil, fmt.Errorf("Index column out of range")
+		return nil, ErrOutOfRange
 	}
 
 	return m.getColumnVector(col), nil

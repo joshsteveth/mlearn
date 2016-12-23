@@ -109,7 +109,7 @@ func (v *Vector) getSingleValue(index int) float64 {
 
 func (v *Vector) GetSingleValue(index int) (float64, error) {
 	if v.GetLength() < index {
-		return 0, fmt.Errorf("Index is out of range")
+		return 0, ErrOutOfRange
 	}
 
 	return v.getSingleValue(index), nil
@@ -135,7 +135,7 @@ func (v *Vector) SetSingleValue(index int, newVal float64) error {
 //validate the length and return error if they both don't match
 func (v *Vector) SetValue(input []float64) error {
 	if len(input) != v.GetLength() {
-		return fmt.Errorf("Length of input does not match with vector length")
+		return ErrOutOfRange
 	}
 
 	v.val = input
@@ -234,7 +234,7 @@ func (v *Vector) addVector(v2 *Vector) func(float64, int) float64 {
 
 func (v *Vector) AddVector(v2 *Vector) error {
 	if v.GetLength() != v2.GetLength() {
-		return fmt.Errorf("Dimensions of both vectors don't agree")
+		return ErrVectorFalseDimension
 	}
 
 	//v.addVector(v2)
@@ -252,7 +252,7 @@ func (v *Vector) multiplyVector(v2 *Vector) func(float64, int) float64 {
 
 func (v *Vector) MultiplyVector(v2 *Vector) error {
 	if v.GetLength() != v2.GetLength() {
-		return fmt.Errorf("Dimensions of both vectors don't agree")
+		return ErrVectorFalseDimension
 	}
 
 	v.CalculateVector(v.multiplyVector(v2))
@@ -272,7 +272,7 @@ func (v *Vector) dotProduct(v2 *Vector) float64 {
 func (v *Vector) DotProduct(v2 *Vector) (float64, error) {
 	//return if length of both vector does not agree
 	if v.GetLength() != v2.GetLength() {
-		return 0, fmt.Errorf("Dimensions of both vectors don't agree")
+		return 0, ErrVectorFalseDimension
 	}
 
 	return v.dotProduct(v2), nil
